@@ -1,4 +1,14 @@
+import { useEffect, useState } from "react";
 import "./App.css";
+import SalonExperience from "./experience/SalonExperience.jsx";
+import BookingRequest from "./BookingRequest.jsx";
+
+const navLinks = [
+  ["#house", "The House"],
+  ["#services", "Services"],
+  ["#journal", "Journal"],
+  ["#studio", "The Studio"],
+];
 
 const services = [
   {
@@ -35,62 +45,98 @@ const gallery = [
 ];
 
 function App() {
+  const [solid, setSolid] = useState(false);
+  const [menu, setMenu] = useState(false);
+
+  // The navigation floats over the walkthrough, then turns solid once the
+  // ivory pages below it reach the top of the screen.
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const experience = document.getElementById("top");
+      const bottom = experience ? experience.getBoundingClientRect().bottom : 0;
+      setSolid(bottom < 72);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  // Mobile menu: Escape closes it, the page behind does not scroll
+  useEffect(() => {
+    if (!menu) return undefined;
+    const onKey = (event) => {
+      if (event.key === "Escape") setMenu(false);
+    };
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = overflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menu]);
+
+  const closeMenu = () => setMenu(false);
+
   return (
     <div className="site">
-      <header className="nav">
-        <a href="#top" className="brand">
+      <header className={`nav ${solid ? "nav--solid" : ""} ${menu ? "nav--open" : ""}`}>
+        <a href="#top" className="brand" onClick={closeMenu}>
           ELANE
         </a>
 
-        <nav className="nav-links">
-          <a href="#house">The House</a>
-          <a href="#services">Services</a>
-          <a href="#journal">Journal</a>
-          <a href="#studio">The Studio</a>
+        <nav className="nav-links" aria-label="Primary">
+          {navLinks.map(([href, label]) => (
+            <a key={href} href={href}>
+              {label}
+            </a>
+          ))}
         </nav>
 
-        <a href="#booking" className="nav-cta">
-          Book an appointment
-        </a>
+        <div className="nav-end">
+          <a href="#booking" className="nav-cta" onClick={closeMenu}>
+            Book an appointment
+          </a>
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-expanded={menu}
+            aria-controls="mobile-nav"
+            aria-label={menu ? "Close menu" : "Open menu"}
+            onClick={() => setMenu((open) => !open)}
+          >
+            <i aria-hidden="true" />
+          </button>
+        </div>
       </header>
 
-      <main id="top">
-        {/* HERO */}
-        <section className="hero">
-          <img
-            src="/Images/hero.jpg"
-            alt="Elane beauty editorial"
-            className="hero-image"
-          />
-
-          <div className="hero-overlay" />
-
-          <div className="hero-top">
-            <span>Beauty House</span>
-            <span>Gurugram · New Delhi</span>
-          </div>
-
-          <div className="hero-content">
-            <p className="eyebrow">Est. 2026</p>
-            <h1>
-              Beauty,
-              <br />
-              refined.
-            </h1>
-            <p className="hero-copy">
-              A modern beauty house shaped around individuality,
-              intention and the art of feeling like yourself.
-            </p>
-            <a href="#services" className="text-link light-link">
-              Explore Elane <span>↘</span>
+      <div id="mobile-nav" className={`mobile-nav ${menu ? "is-open" : ""}`} hidden={!menu}>
+        <nav aria-label="Mobile">
+          {navLinks.map(([href, label]) => (
+            <a key={href} href={href} onClick={closeMenu}>
+              {label}
             </a>
-          </div>
+          ))}
+          <a href="#booking" className="mobile-nav-cta" onClick={closeMenu}>
+            Request an appointment <span aria-hidden="true">↗</span>
+          </a>
+        </nav>
+        <p>Golf Course Road, Gurugram · Mon — Sat, 10:00 — 20:00</p>
+      </div>
 
-          <div className="hero-bottom">
-            <span>Scroll to discover</span>
-            <span className="hero-line" />
-          </div>
-        </section>
+      <main>
+        {/* THE WALKTHROUGH (replaces the static hero; falls back to photography) */}
+        <SalonExperience />
 
         {/* INTRO */}
         <section className="intro" id="house">
@@ -129,7 +175,7 @@ function App() {
 
         {/* FULL IMAGE */}
         <section className="cinema">
-          <img src="/Images/salon.jpg" alt="Elane beauty house interior" />
+          <img loading="lazy" decoding="async" src="/Images/salon.jpg" alt="Elane beauty house interior" />
           <div className="cinema-caption">
             <span>01 / 04</span>
             <span>The Elane House</span>
@@ -162,7 +208,7 @@ function App() {
                 <div className="service-number">{service.number}</div>
 
                 <div className="service-image">
-                  <img src={service.image} alt={service.title} />
+                  <img loading="lazy" decoding="async" src={service.image} alt={service.title} />
                 </div>
 
                 <div className="service-info">
@@ -178,7 +224,7 @@ function App() {
         {/* STATEMENT */}
         <section className="statement">
           <div className="statement-image">
-            <img src="/Images/styling.jpg" alt="Elane styling experience" />
+            <img loading="lazy" decoding="async" src="/Images/styling.jpg" alt="Elane styling experience" />
           </div>
 
           <div className="statement-copy">
@@ -226,26 +272,26 @@ function App() {
 
           <div className="gallery">
             <div className="gallery-item gallery-large">
-              <img src={gallery[0]} alt="Beauty editorial portrait" />
+              <img loading="lazy" decoding="async" src={gallery[0]} alt="Beauty editorial portrait" />
             </div>
 
             <div className="gallery-item gallery-small">
-              <img src={gallery[1]} alt="Hair styling at Elane" />
+              <img loading="lazy" decoding="async" src={gallery[1]} alt="Hair styling at Elane" />
             </div>
 
             <div className="gallery-item gallery-small">
-              <img src={gallery[2]} alt="Beauty detail" />
+              <img loading="lazy" decoding="async" src={gallery[2]} alt="Beauty detail" />
             </div>
 
             <div className="gallery-item gallery-wide">
-              <img src={gallery[3]} alt="Elane studio interior" />
+              <img loading="lazy" decoding="async" src={gallery[3]} alt="Elane studio interior" />
             </div>
           </div>
         </section>
 
         {/* BRIDAL */}
         <section className="bridal">
-          <img src="/Images/bridal.jpg" alt="Elane bridal beauty" />
+          <img loading="lazy" decoding="async" src="/Images/bridal.jpg" alt="Elane bridal beauty" />
 
           <div className="bridal-overlay" />
 
@@ -266,7 +312,7 @@ function App() {
             </p>
 
             <a href="#booking" className="text-link light-link">
-              Explore bridal <span>↗</span>
+              Enquire about bridal <span>↗</span>
             </a>
           </div>
         </section>
@@ -318,7 +364,7 @@ function App() {
             </div>
 
             <div className="studio-image">
-              <img src="/Images/interior.jpg" alt="Elane studio" />
+              <img loading="lazy" decoding="async" src="/Images/interior.jpg" alt="Elane studio" />
             </div>
           </div>
         </section>
@@ -326,7 +372,7 @@ function App() {
         {/* BOOKING */}
         <section className="booking" id="booking">
           <div className="booking-image">
-            <img src="/Images/detail.jpg" alt="Elane beauty detail" />
+            <img loading="lazy" decoding="async" src="/Images/detail.jpg" alt="Elane beauty detail" />
           </div>
 
           <div className="booking-content">
@@ -343,10 +389,7 @@ function App() {
               there.
             </p>
 
-            <a href="mailto:hello@elanebeautyhouse.com" className="booking-button">
-              Make an appointment
-              <span>↗</span>
-            </a>
+            <BookingRequest />
           </div>
         </section>
       </main>
