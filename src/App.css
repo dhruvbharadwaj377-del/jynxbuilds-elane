@@ -1389,6 +1389,19 @@ a {
   color: #fff;
 }
 
+.footer-disclaimer {
+  max-width: var(--content);
+
+  margin: 0 auto;
+
+  padding: 22px 0;
+
+  font-size: 12px;
+  line-height: 1.6;
+
+  color: rgba(245, 241, 235, 0.62);
+}
+
 .footer-bottom {
   display: flex;
 

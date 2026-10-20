@@ -1,41 +1,16 @@
 import { useId, useState } from "react";
 
-const EMAIL = "hello@elanebeautyhouse.com";
 const SERVICES = ["Hair", "Skin", "Nails", "Bridal", "Not sure yet"];
 const TIMES = ["Morning", "Afternoon", "Evening", "Any time"];
 
-// An appointment *request*: it opens the visitor's email app with the details
-// filled in. There is no booking system behind it, so nothing here ever
-// claims an appointment is confirmed.
+// Elane is a concept demo: the form shows how a request would be taken, but
+// it sends nothing and contacts no one. Submitting only confirms that.
 export default function BookingRequest() {
   const id = useId();
   const [sent, setSent] = useState(false);
 
   const onSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const name = String(data.get("name") || "").trim();
-    const service = String(data.get("service") || "");
-    const date = String(data.get("date") || "");
-    const time = String(data.get("time") || "");
-    const note = String(data.get("note") || "").trim();
-
-    const subject = `Appointment request: ${service}${name ? ` (${name})` : ""}`;
-    const body = [
-      "Hello Elane,",
-      "",
-      "I would like to request an appointment.",
-      "",
-      `Name: ${name}`,
-      `Service: ${service}`,
-      `Preferred date: ${date || "Flexible"}`,
-      `Preferred time: ${time}`,
-      note ? `\n${note}` : "",
-      "",
-      "Thank you.",
-    ].join("\n");
-
-    window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setSent(true);
   };
 
@@ -81,14 +56,14 @@ export default function BookingRequest() {
       </div>
 
       <button type="submit" className="booking-button">
-        Email my request
+        Submit demo request
         <span aria-hidden="true">↗</span>
       </button>
 
       <p className="booking-note" role="status">
         {sent
-          ? "Your email app should now open with the request. Nothing is booked until Elane replies to confirm."
-          : `This opens an email to ${EMAIL}. It is a request, not a confirmed booking: the team replies to confirm availability.`}
+          ? "Nothing has been sent and no appointment has been booked. Elane Beauty House is a concept demonstration, not a real salon."
+          : "Concept demonstration only — this form does not book an appointment, contact a salon or send your details anywhere."}
       </p>
     </form>
   );

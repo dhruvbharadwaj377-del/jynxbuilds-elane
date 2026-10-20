@@ -412,6 +412,11 @@ function App() {
           </div>
         </div>
 
+        <p className="footer-disclaimer">
+          Elane Beauty House is a fictional concept project by JynxBuilds. This demonstration does not represent a
+          real salon or accept actual appointments.
+        </p>
+
         <div className="footer-bottom">
           <span>© 2026 Elane Beauty House</span>
           <span>Gurugram · New Delhi</span>
